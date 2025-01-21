@@ -1,4 +1,4 @@
-import requests,os,json
+import requests,os
 
 api_key = os.environ['API_KEY']
 api_secret = os.environ['API_SECRET']
@@ -7,15 +7,14 @@ api_data_endpoint = os.environ['API_DATA_ENDPOINT']
 
 def createOrder(symbol="", qty=1, action="buy", type="market", tif="ioc"):
     """
-        TODO: Get all missing information, eg type and time in force
         =============================================================
         creates a new order with the given requirements
         =============================================================
         symbol: represents what stock we want to interact with
         qty: represents the amount of that symbol we want to interact with
         action: if we want to 'buy' or 'sell' this position
-        type: need to do research, but this is an enum, options are 'market' limit' 'stop_limit' 'trailing_stop'
-        tif: time in force, need to do research, but this is another enum, options are 'day' 'gtc' 'opg' 'cls' 'ioc' 'fok'
+        type: is an enum, options are 'market' limit' 'stop_limit' 'trailing_stop'
+        tif: time in force, is another enum, options are 'day' 'gtc' 'opg' 'cls' 'ioc' 'fok'
 
         this function is reponsible for placing a new order
     """
@@ -38,7 +37,7 @@ def createOrder(symbol="", qty=1, action="buy", type="market", tif="ioc"):
     }
 
     response = requests.post(url, json=data, headers=headers)
-    return response.json
+    return response.text
 
 
 
@@ -55,7 +54,7 @@ def getAllOpenPositions():
     }
 
     response = requests.get(url, headers=headers)
-    return response.json
+    return response.text
 
 def getAllOpenOrders():
     """
@@ -71,7 +70,7 @@ def getAllOpenOrders():
     }
 
     response = requests.get(url, headers=headers)
-    return response.json
+    return response.text
 
 def getLatestPrice(symbol=""):
     """
@@ -90,6 +89,7 @@ def getLatestPrice(symbol=""):
     response = requests.get(url, headers=headers)
     return response.text
 
+# ====== dev functions ======
 def getHeaders():
     headers = {
         'APCA-API-KEY-ID': api_key,
@@ -98,7 +98,3 @@ def getHeaders():
         'content-type': 'application/json'
     }
     print(headers)
-
-
-
-
