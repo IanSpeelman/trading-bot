@@ -1,7 +1,11 @@
+import api
+
 class Symbol:
     def __init__(self, symbol):
         self.average_gain = 0
         self.average_loss = 0
+        self.last_update = 0
+        self.amount = 0
         self.rsi = 0
         self.symbol = symbol
 
@@ -24,8 +28,38 @@ class Symbol:
 
     def updateRSI(self):
         # TODO:
-        print(self)
-        return self.average_gain
+        # update average_gain / average_loss / last_update
+        data = api.getPriceHistory(self.symbol, 15) # this now gets the latest 14 price points with 15 minutes interval
+        if(self.average_loss == 0 and self.average_gain == 0):
+            lastNumber = None
+            gainTotal = 0
+            lossTotal = 0
+            for price in data:
+                if(lastNumber == None):
+                    lastNumber = price
+                    continue
+            
+                if(lastNumber - price < 0):
+                    gainTotal += abs(lastNumber - price)
+                    lastNumber = price
+                else:
+                    lossTotal += abs(lastNumber - price)
+                    lastNumber = price
+            self.average_gain = gainTotal / 14
+            self.average_loss = lossTotal / 14
+        else:
+            lastPrices = data[-2:]
+            if(lastPrices[0] - lastPrices[1] < 0):
+                self.average_gain = (self.average_gain * 13 + abs(lastPrices[0] - lastPrices[1])) / 14
+            else:
+                self.average_loss = (self.average_loss * 13 + abs(lastPrices[0] - lastPrices[1])) / 14
+
+
+        relativeStrength = self.average_gain / self.average_loss
+        self.rsi = 100 - (100 / (1 + relativeStrength))
+
+        return self.rsi
+
 
     def getRSI(self):
         return self.rsi
@@ -77,3 +111,24 @@ class SymbolStore:
             return a list of all stored symbol objects
         """
         return self.symbols
+    
+    def updateAllSymbolRSI(self):
+        """
+            update the RSI values for all symbols
+        """
+        for symbol in self.symbols:
+            symbol.updateRSI()
+            print(f"updated RSI value for: {symbol}")
+
+
+    # def __init__(self, symbol): ==== Symbol class ====
+    # def __str__(self):
+    # def updateRSI(self):
+    # def getRSI(self):
+    #
+    # def __init__(self):       ==== SymbolStore class ====
+    # def addSymbol(self, symbol):
+    # def removeSymbol(self, symbol):
+    # def getSymbol(self, symbol):
+    # def listAllSymbols(self):
+    # def updateAllSymbolRSI(self):
