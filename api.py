@@ -1,4 +1,4 @@
-import requests,os
+import requests,os,json,datetime
 
 api_key = os.environ['API_KEY']
 api_secret = os.environ['API_SECRET']
@@ -77,9 +77,9 @@ def getLatestPrice(symbol=""):
         get the latest price point of a certain symbol
     """
 
-    url = f"{api_data_endpoint}/stocks/quotes/latest?symbols={symbol}"
+    url = f"{api_data_endpoint}/stocks/bars/latest?symbols={symbol}"
 
-    headers = {
+    headers = { 
         'APCA-API-KEY-ID': api_key,
         'APCA-API-SECRET-KEY': api_secret,
         'accept': 'application/json',
@@ -87,7 +87,50 @@ def getLatestPrice(symbol=""):
     }
 
     response = requests.get(url, headers=headers)
-    return response.text
+    data = json.loads(response.text)
+    return data["bars"][symbol]["c"]
+
+def getPriceHistory(symbol, minutes):
+    """
+        Get the last 14 price points with a 15 minutes interval
+    """
+    # get date, calculate the starting point, and formatting it so the api can accept it
+    now = datetime.datetime.now(datetime.timezone.utc)
+    prev = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=1)
+    nowstr = now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    prevstr = prev.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+
+
+    # set the correct query parameters
+    url = f"{api_data_endpoint}/stocks/bars"
+    payload = {
+        'symbols':symbol,
+        'timeframe':f"{minutes}T",
+        'start':prevstr,
+        'end':nowstr,
+        'limit':1000,
+        'adjustment':'raw',
+        'feed':'iex',
+        'sort':'asc'
+    }
+
+    # set the correct headers
+    headers = {
+        'APCA-API-KEY-ID': api_key,
+        'APCA-API-SECRET-KEY': api_secret,
+        'accept': 'application/json',
+        'content-type': 'application/json'
+    }
+
+    # make the request and filter out the stuff we dont need
+    response = requests.get(url,payload, headers=headers)
+    data = json.loads(response.text)
+    result = []
+    for price in data["bars"][symbol][-14:]:
+        result.append(price["c"])
+    return result
+
+
 
 # ====== dev functions ======
 def getHeaders():
@@ -98,3 +141,10 @@ def getHeaders():
         'content-type': 'application/json'
     }
     print(headers)
+
+# def createOrder(symbol="", qty=1, action="buy", type="market", tif="ioc"):
+# def getAllOpenPositions():
+# def getAllOpenOrders():
+# def getLatestPrice(symbol=""):
+# def getPriceHistory(symbol, minutes):
+# def getHeaders():
