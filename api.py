@@ -5,6 +5,14 @@ api_secret = os.environ['API_SECRET']
 api_endpoint = os.environ['API_ENDPOINT']
 api_data_endpoint = os.environ['API_DATA_ENDPOINT']
 
+headers = {
+    'APCA-API-KEY-ID': api_key,
+    'APCA-API-SECRET-KEY': api_secret,
+    'accept': 'application/json',
+    'content-type': 'application/json'
+}
+
+
 def createOrder(symbol="", qty=1, action="buy", type="market", tif="ioc"):
     """
         =============================================================
@@ -20,13 +28,6 @@ def createOrder(symbol="", qty=1, action="buy", type="market", tif="ioc"):
     """
 
     url = f"{api_endpoint}/orders"
-
-    headers = {
-        'APCA-API-KEY-ID': api_key,
-        'APCA-API-SECRET-KEY': api_secret,
-        'accept': 'application/json',
-        'content-type': 'application/json'
-    }
 
     data = {
         "side": action,
@@ -46,12 +47,6 @@ def getAllOpenPositions():
         retrieves all open positions
     """    
     url = f"{api_endpoint}/positions"
-    headers = {
-        'APCA-API-KEY-ID': api_key,
-        'APCA-API-SECRET-KEY': api_secret,
-        'accept': 'application/json',
-        'content-type': 'application/json'
-    }
 
     response = requests.get(url, headers=headers)
     return response.text
@@ -62,13 +57,7 @@ def getAllOpenOrders():
         eg: orders that are active, waiting for execution
     """
     url = f"{api_endpoint}/orders"
-    headers = {
-        'APCA-API-KEY-ID': api_key,
-        'APCA-API-SECRET-KEY': api_secret,
-        'accept': 'application/json',
-        'content-type': 'application/json'
-    }
-
+    
     response = requests.get(url, headers=headers)
     return response.text
 
@@ -78,13 +67,6 @@ def getLatestPrice(symbol=""):
     """
 
     url = f"{api_data_endpoint}/stocks/bars/latest?symbols={symbol}"
-
-    headers = { 
-        'APCA-API-KEY-ID': api_key,
-        'APCA-API-SECRET-KEY': api_secret,
-        'accept': 'application/json',
-        'content-type': 'application/json'
-    }
 
     response = requests.get(url, headers=headers)
     data = json.loads(response.text)
@@ -114,14 +96,6 @@ def getPriceHistory(symbol, minutes):
         'sort':'asc'
     }
 
-    # set the correct headers
-    headers = {
-        'APCA-API-KEY-ID': api_key,
-        'APCA-API-SECRET-KEY': api_secret,
-        'accept': 'application/json',
-        'content-type': 'application/json'
-    }
-
     # make the request and filter out the stuff we dont need
     response = requests.get(url,payload, headers=headers)
     data = json.loads(response.text)
@@ -130,17 +104,20 @@ def getPriceHistory(symbol, minutes):
         result.append(price["c"])
     return result
 
+def isMarketOpen():
+    url = f"{api_endpoint}/clock"
+    
+    response = requests.get(url, headers=headers)
+    data = json.loads(response.text)
+    return data["is_open"]
+
+
 
 
 # ====== dev functions ======
 def getHeaders():
-    headers = {
-        'APCA-API-KEY-ID': api_key,
-        'APCA-API-SECRET-KEY': api_secret,
-        'accept': 'application/json',
-        'content-type': 'application/json'
-    }
     print(headers)
+
 
 # def createOrder(symbol="", qty=1, action="buy", type="market", tif="ioc"):
 # def getAllOpenPositions():
