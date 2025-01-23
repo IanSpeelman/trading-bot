@@ -2,7 +2,6 @@ import os
 import api
 from index import interval
 from index import trading
-from index import loopThread
 
 def showOptions(msg="", clear=True):
     if(clear):
@@ -16,10 +15,12 @@ def showOptions(msg="", clear=True):
     print('5) Remove symbol')
     print('q) Quit')
     print("====================== settings ======================")
+    print(f"Using account: {os.environ["ACCOUNT_NAME"]}")
     print(f"interval: {interval[0]}")
     print(f"trading: {trading.is_set()}")
     print(allSymbols())
     selection = input("Select option: ")
+
 
     match selection:
         case "1":
@@ -73,6 +74,12 @@ def allSymbols():
 
 def custom():
     from index import symbols
+
+    btc = symbols.addSymbol("BTCUSD")
+    btc.updateAmount()
+    print(btc.amount)
+    api.getHeaders()
+
     print('this does whatever i need it to do')
     symbols.addSymbol("AAPL")
     symbols.addSymbol("meta")
@@ -86,4 +93,4 @@ def custom():
     symbols.addSymbol("pep")
     symbols.addSymbol("pfe")
     interval[0] = 1
-    showOptions(clear=True)
+    showOptions(clear=False)
