@@ -37,9 +37,25 @@ def createOrder(symbol="", qty=1, action="buy", type="market", tif="ioc"):
         "qty": str(qty)
     }
 
+
     response = requests.post(url, json=data, headers=headers)
+
+
+
     return response.text
 
+def getQTY(symbol):
+    """
+        retrieves the amount of stocks we own for a symbol
+    """
+    url = f"{api_endpoint}/positions/{symbol}"
+
+    info = requests.get(url, headers=headers)
+    info = json.loads(info.text)
+    try:
+        return info["qty"]
+    except:
+        return 0
 
 
 def getAllOpenPositions():
