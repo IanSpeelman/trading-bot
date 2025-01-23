@@ -12,24 +12,10 @@ class Symbol:
     def __str__(self):
         return self.symbol
 
-    
-    """
-        TODO: 
-        calculate rsi function 
-        get historical prices
-        get current date and have the ability to caculate with it
-        in the request to get historical prices, the end will be current time, and start will be step time * 14 before end time
-        make sure to smooth the average gain/loss if these numbers are known, if these numbers are unknown calculate the raw one, and smooth as we go
-
-        calculate the RSI value for a specific symbol
-        symbol: [string] the symbol to calculate the RSI value for
-        periodLength: [number] time in minutes as the interval for periods
-    """
-
-    def updateRSI(self):
+    def updateRSI(self, interval=15):
         # TODO:
-        # update average_gain / average_loss / last_update
-        data = api.getPriceHistory(self.symbol, 15) # this now gets the latest 14 price points with 15 minutes interval
+        # keep track of when RSI is last updated in last_update variable
+        data = api.getPriceHistory(self.symbol, interval) # this now gets the latest 14 price points with interval minutes interval
         if(self.average_loss == 0 and self.average_gain == 0):
             lastNumber = None
             gainTotal = 0
@@ -56,7 +42,7 @@ class Symbol:
 
 
         relativeStrength = self.average_gain / self.average_loss
-        self.rsi = 100 - (100 / (1 + relativeStrength))
+        self.rsi = round(100 - (100 / (1 + relativeStrength)), 2)
 
         return self.rsi
 
@@ -76,8 +62,9 @@ class SymbolStore:
             if the symbol already exists, it will return the already existing symbol without adding a new one
             symbol: [string]
         """
+        symbol = symbol.upper()
         for storedSymbol in self.symbols:
-            if(symbol is storedSymbol.symbol ):
+            if(symbol == storedSymbol.symbol ):
                 print('symbol already exists, this one is not added')
                 return storedSymbol
         newSymbol = Symbol(symbol)
@@ -90,8 +77,9 @@ class SymbolStore:
             returns the removed symbol
             symbol: [string]
         """
+        symbol = symbol.upper()
         for storedSymbol in self.symbols:
-            if(storedSymbol.symbol is symbol):
+            if(storedSymbol.symbol == symbol):
                 self.symbols.remove(storedSymbol)
                 return symbol
         return False
@@ -101,8 +89,9 @@ class SymbolStore:
             returns a Symbol object if it exists, otherwise it will return false
             symbol: [string]
         """
+        symbol = symbol.upper()
         for storedSymbol in self.symbols:
-            if(storedSymbol.symbol is symbol):
+            if(storedSymbol.symbol == symbol):
                 return storedSymbol
         return False
 
@@ -121,14 +110,48 @@ class SymbolStore:
             print(f"updated RSI value for: {symbol}")
 
 
+def checkForBets(symbols):
+    """
+        check if there are any symbol for wich it makes sense to execute an order
+    """
+    # TODO: check if market is even open
+    # TODO: check when the last order of the same type was made for the current symbol
+    # INFO: it does not make sence to make a buy order when that has happened on the previous check
+    # INFO: maybe allow for only 1 stock purchase for each symbol
+    from index import interval
+    allSymbols = symbols.listAllSymbols()
+    if(not api.isMarketOpen()):
+        print(f"\n\nsymbol\t RSI \t action", end='')
+        print('\n=======================================================================', end='')
+        for symbol in allSymbols:
+            symbol.updateRSI(interval[0]);
+            if(symbol.getRSI() > 70):
+                print(f"\n{symbol.symbol}\t {symbol.getRSI()}\t selling", end='')
+                placeBet(symbol, "sell")
+            elif(symbol.getRSI() < 30):
+                print(f"\n{symbol.symbol}\t {symbol.getRSI()}\t buying", end='')
+                placeBet(symbol, "buy")
+            else:
+                print(f"\n{symbol.symbol}\t {symbol.getRSI()}\t doing nothing", end='')
+    else:
+        print("market is closed")
+
+def placeBet(symbol, action):
+    if((symbol.amount == 1 and action == "buy") or (symbol.amount == -1 and action == "sell")):
+        return
+    if(symbol.amount == 0):
+        api.createOrder(symbol.symbol, 1, action)
+    if(symbol.amount == -1):
+        api.createOrder(symbol.symbol, 2, action)
+
+
+
     # def __init__(self, symbol): ==== Symbol class ====
-    # def __str__(self):
     # def updateRSI(self):
     # def getRSI(self):
     #
     # def __init__(self):       ==== SymbolStore class ====
-    # def addSymbol(self, symbol):
-    # def removeSymbol(self, symbol):
+    # def addSymbol(self, symbol): def removeSymbol(self, symbol):
     # def getSymbol(self, symbol):
     # def listAllSymbols(self):
     # def updateAllSymbolRSI(self):
