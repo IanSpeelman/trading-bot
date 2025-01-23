@@ -42,11 +42,6 @@ source env/bin/activate
 python3 index.py
 ```
 
-## Features
-- CLI for managing trading symbols
-- Configurable trading intervals
-- Start/stop trading
-- Panic mode to close all positions and cancel orders
 
 ## Usage
 Use the CLI to:
