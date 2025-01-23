@@ -1,5 +1,8 @@
 # Trading Bot
 
+## Important: Read Disclaimer
+**Before using this software, carefully review the [DISCLAIMER.md](DISCLAIMER.md) file.**
+
 ## Project Overview
 Automated stock trading bot using Alpaca Markets API
 
