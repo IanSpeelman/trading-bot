@@ -50,6 +50,10 @@ class Symbol:
     def getRSI(self):
         return self.rsi
 
+    def updateAmount(self):
+        self.amount = api.getQTY(self.symbol)
+
+
 
 class SymbolStore:
     def __init__(self):
@@ -114,13 +118,9 @@ def checkForBets(symbols):
     """
         check if there are any symbol for wich it makes sense to execute an order
     """
-    # TODO: check if market is even open
-    # TODO: check when the last order of the same type was made for the current symbol
-    # INFO: it does not make sence to make a buy order when that has happened on the previous check
-    # INFO: maybe allow for only 1 stock purchase for each symbol
     from index import interval
     allSymbols = symbols.listAllSymbols()
-    if(not api.isMarketOpen()):
+    if(api.isMarketOpen()):
         print(f"\n\nsymbol\t RSI \t action", end='')
         print('\n=======================================================================', end='')
         for symbol in allSymbols:
@@ -137,11 +137,12 @@ def checkForBets(symbols):
         print("market is closed")
 
 def placeBet(symbol, action):
-    if((symbol.amount == 1 and action == "buy") or (symbol.amount == -1 and action == "sell")):
+    symbol.updateAmount()
+    if((symbol.amount >= 1 and action == "buy") or (symbol.amount <= -1 and action == "sell")):
         return
     if(symbol.amount == 0):
         api.createOrder(symbol.symbol, 1, action)
-    if(symbol.amount == -1):
+    else:
         api.createOrder(symbol.symbol, 2, action)
 
 
