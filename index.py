@@ -1,8 +1,27 @@
-import urllib.request,os
+import cli
+import utils
+import threading
+import time
 
-api_key = os.environ['API_KEY']
-api_secret = os.environ['API_SECRET']
-api_endpoint = os.environ['API_ENDPOINT']
-print(api_key)
-print(api_secret)
-print(api_endpoint)
+interval = [15]
+trading = threading.Event()
+trading.clear()
+symbols = utils.SymbolStore()
+
+def interface():
+    if(__name__ == "__main__"):
+        cli.showOptions()
+
+interface()
+# threading.Thread(target=interface).start()
+
+
+def loop():
+    while True:
+        if trading.is_set():
+            utils.checkForBets(symbols)
+            time.sleep(interval[0] * 60)
+        else:
+            time.sleep(1)
+
+loopThread = threading.Thread(target=loop, daemon=True).start()
