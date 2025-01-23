@@ -138,9 +138,9 @@ def checkForBets(symbols):
 
 def placeBet(symbol, action):
     symbol.updateAmount()
-    if((symbol.amount >= 1 and action == "buy") or (symbol.amount <= -1 and action == "sell")):
+    if((int(symbol.amount) >= 1 and action == "buy") or (int(symbol.amount) <= -1 and action == "sell")):
         return
-    if(symbol.amount == 0):
+    if(int(symbol.amount) == 0):
         api.createOrder(symbol.symbol, 1, action)
     else:
         api.createOrder(symbol.symbol, 2, action)
