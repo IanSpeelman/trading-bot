@@ -129,6 +129,7 @@ def checkForBets(symbols):
     closing = now > closingTimeIntervalOffset
 
     if(closing):
+        print(f'[{str(now.time())[0:5]}] market is about to close, panic close now')
         api.panic()
 
     allSymbols = symbols.listAllSymbols()
