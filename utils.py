@@ -134,7 +134,7 @@ def checkForBets(symbols):
     allSymbols = symbols.listAllSymbols()
     if(api.isMarketOpen()):
         print(f"\n\nSymbol\t RSI \t Action", end='')
-        print('\n=======================================================================', end='')
+        print(f'\n================ {str(now.time())[0:5]} ================', end='')
         for symbol in allSymbols:
             symbol.updateRSI(interval[0]);
             if(symbol.getRSI() > 70):
