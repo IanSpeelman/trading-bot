@@ -1,4 +1,4 @@
-import api
+import api, datetime
 
 class Symbol:
     def __init__(self, symbol):
@@ -118,10 +118,19 @@ class SymbolStore:
 def checkForBets(symbols):
     """
         check if there are any symbol for wich it makes sense to execute an order
+
     """
     # TODO: check for good rsi thresholds to start order
     # TODO: check for good rsi thresholds to end order
     from index import interval
+
+    now = datetime.datetime.now(datetime.timezone.utc)
+    closingTimeIntervalOffset = datetime.datetime.strptime(api.closingTime(), "%Y-%m-%dT%H:%M:%S%z") - datetime.timedelta(minutes=interval[0] + 1 )
+    closing = now > closingTimeIntervalOffset
+
+    if(closing):
+        api.panic()
+
     allSymbols = symbols.listAllSymbols()
     if(api.isMarketOpen()):
         print(f"\n\nSymbol\t RSI \t Action", end='')
@@ -140,7 +149,12 @@ def checkForBets(symbols):
         print("market is closed")
 
 def placeOrder(symbol, action):
+    """
+        places an order based on symbol and action (sell or buy)
+        determines if an order is nessasary based on how much we already own
+    """
     # TODO: calculate  and execute stop order
+    # TODO: calculate how much we should buy or sell based on avalable funds
     symbol.updateAmount()
     if((int(symbol.amount) >= 1 and action == "buy") or (int(symbol.amount) <= -1 and action == "sell")):
         return

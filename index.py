@@ -15,8 +15,9 @@ def interface():
 interface()
 # threading.Thread(target=interface).start()
 
-
 def loop():
+    # TODO: make the loop execute each second, and add an if check to see if there has been interval minutes passed since last excution of code
+    # INFO: this is to make it more responsive when the user changes stuff in the cli
     while True:
         if trading.is_set():
             utils.checkForBets(symbols)

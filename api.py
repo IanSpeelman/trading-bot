@@ -121,6 +121,9 @@ def getPriceHistory(symbol, minutes):
     return result
 
 def isMarketOpen():
+    """
+        returns True if market is open, otherwise it returns False
+    """
     url = f"{api_endpoint}/clock"
     
     response = requests.get(url, headers=headers)
@@ -128,6 +131,9 @@ def isMarketOpen():
     return data["is_open"]
 
 def panic():
+    """
+        Liquidates all open positions, and cancels all orders
+    """
     orders = requests.delete(f"{api_endpoint}/orders", headers=headers)
     positions = requests.delete(f"{api_endpoint}/positions", headers=headers)
     orders = json.loads(orders.text)
@@ -156,6 +162,11 @@ def panic():
 
     return True
 
+def closingTime():
+    url = f"{api_endpoint}/clock"
+    response = requests.get(url, headers=headers)
+    time = json.loads(response.text)["next_close"]
+    return time
 
 
 # ====== dev functions ======
