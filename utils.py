@@ -9,6 +9,7 @@ class Symbol:
         self.rsi = 0
         self.symbol = symbol
 
+
     def __str__(self):
         return self.symbol
 
@@ -118,25 +119,28 @@ def checkForBets(symbols):
     """
         check if there are any symbol for wich it makes sense to execute an order
     """
+    # TODO: check for good rsi thresholds to start order
+    # TODO: check for good rsi thresholds to end order
     from index import interval
     allSymbols = symbols.listAllSymbols()
     if(api.isMarketOpen()):
-        print(f"\n\nsymbol\t RSI \t action", end='')
+        print(f"\n\nSymbol\t RSI \t Action", end='')
         print('\n=======================================================================', end='')
         for symbol in allSymbols:
             symbol.updateRSI(interval[0]);
             if(symbol.getRSI() > 70):
-                print(f"\n{symbol.symbol}\t {symbol.getRSI()}\t selling", end='')
-                placeBet(symbol, "sell")
+                print(f"\n{symbol.symbol}\t {symbol.getRSI()}\t Selling", end='')
+                placeOrder(symbol, "sell")
             elif(symbol.getRSI() < 30):
-                print(f"\n{symbol.symbol}\t {symbol.getRSI()}\t buying", end='')
-                placeBet(symbol, "buy")
+                print(f"\n{symbol.symbol}\t {symbol.getRSI()}\t Buying", end='')
+                placeOrder(symbol, "buy")
             else:
-                print(f"\n{symbol.symbol}\t {symbol.getRSI()}\t doing nothing", end='')
+                print(f"\n{symbol.symbol}\t {symbol.getRSI()}\t No action", end='')
     else:
         print("market is closed")
 
-def placeBet(symbol, action):
+def placeOrder(symbol, action):
+    # TODO: calculate  and execute stop order
     symbol.updateAmount()
     if((int(symbol.amount) >= 1 and action == "buy") or (int(symbol.amount) <= -1 and action == "sell")):
         return
@@ -146,13 +150,12 @@ def placeBet(symbol, action):
         api.createOrder(symbol.symbol, 2, action)
 
 
-
-    # def __init__(self, symbol): ==== Symbol class ====
-    # def updateRSI(self):
-    # def getRSI(self):
-    #
-    # def __init__(self):       ==== SymbolStore class ====
-    # def addSymbol(self, symbol): def removeSymbol(self, symbol):
-    # def getSymbol(self, symbol):
-    # def listAllSymbols(self):
-    # def updateAllSymbolRSI(self):
+# def __init__(self, symbol): ==== Symbol class ====
+# def updateRSI(self):
+# def getRSI(self):
+#
+# def __init__(self):       ==== SymbolStore class ====
+# def addSymbol(self, symbol): def removeSymbol(self, symbol):
+# def getSymbol(self, symbol):
+# def listAllSymbols(self):
+# def updateAllSymbolRSI(self):
