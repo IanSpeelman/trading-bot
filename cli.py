@@ -13,6 +13,7 @@ def showOptions(msg="", clear=True):
     print('3) Change interval')
     print('4) Add symbol')
     print('5) Remove symbol')
+    print('6) Panic (liquidate all open positions and cancel all remaining orders)')
     print('q) Quit')
     print("====================== settings ======================")
     print(f"Using account: {os.environ["ACCOUNT_NAME"]}")
@@ -33,6 +34,8 @@ def showOptions(msg="", clear=True):
             addSymbol()
         case "5":
             removeSymbol()
+        case "6":
+            panic()
         case "c":
             custom()
         case "q":
@@ -65,6 +68,10 @@ def removeSymbol():
     symbols.removeSymbol(symbol.upper())
     showOptions(f"symbol '{symbol.upper()}' removed")
 
+def panic():
+    api.panic()
+    showOptions("Panic, all open positions are closed and all remaining orders are canceled")
+
 def allSymbols():
     from index import symbols
     listOfSymbols = ""
@@ -75,10 +82,6 @@ def allSymbols():
 def custom():
     from index import symbols
 
-    btc = symbols.addSymbol("BTCUSD")
-    btc.updateAmount()
-    print(btc.amount)
-    api.getHeaders()
 
     print('this does whatever i need it to do')
     symbols.addSymbol("AAPL")

@@ -1,4 +1,4 @@
-import requests,os,json,datetime
+import requests,os,json,datetime,webbrowser
 
 api_key = os.environ['API_KEY']
 api_secret = os.environ['API_SECRET']
@@ -127,6 +127,34 @@ def isMarketOpen():
     data = json.loads(response.text)
     return data["is_open"]
 
+def panic():
+    orders = requests.delete(f"{api_endpoint}/orders", headers=headers)
+    positions = requests.delete(f"{api_endpoint}/positions", headers=headers)
+    orders = json.loads(orders.text)
+    positions = json.loads(positions.text)
+    url = "https://app.alpaca.markets"
+
+    print(len(orders))
+    print(len(positions))
+    print(orders)
+    print(positions)
+    
+    if(len(orders) == 0 and len(positions) == 0):
+        return True
+
+    for order in orders:
+        print(order.status)
+        if(order.status != 200):
+            webbrowser.open(url, new=0, autoraise=True)
+            return False
+
+    for position in positions:
+        print(position.status)
+        if(position.status != 200):
+            webbrowser.open(url, new=0, autoraise=True)
+            return False
+
+    return True
 
 
 
