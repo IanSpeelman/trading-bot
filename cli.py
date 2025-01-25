@@ -1,7 +1,6 @@
 import os
 import api
-from index import interval
-from index import trading
+from index import trading, interval
 
 def showOptions(msg="", clear=True):
     if(clear):
@@ -21,7 +20,6 @@ def showOptions(msg="", clear=True):
     print(f"trading: {trading.is_set()}")
     print(allSymbols())
     selection = input("Select option: ")
-
 
     match selection:
         case "1":
@@ -81,10 +79,7 @@ def allSymbols():
 
 def custom():
     from index import symbols
-
-
     print('this does whatever i need it to do')
-
 
     symbols.addSymbol('COST')
     symbols.addSymbol('ASML')
@@ -177,5 +172,5 @@ def custom():
     symbols.addSymbol('ALNY')
     symbols.addSymbol('ACGL')
 
-    interval[0] = 1
-    showOptions(clear=False)
+    interval[0] = 15
+    showOptions(clear=True)
