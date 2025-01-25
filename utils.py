@@ -9,51 +9,52 @@ class Symbol:
         self.rsi = 0
         self.symbol = symbol
 
-
     def __str__(self):
         return self.symbol
 
     def updateRSI(self, interval=15):
-        # TODO:
-        # keep track of when RSI is last updated in last_update variable
-        data = api.getPriceHistory(self.symbol, interval) # this now gets the latest 14 price points with interval minutes interval
-        if(self.average_loss == 0 and self.average_gain == 0):
+        data = api.getPriceHistory(self.symbol, interval)
+        # if average_gain and average_loss are 0, we have not yet calculated any rsi,
+        # so we need to do a clean calculation
+        if self.average_loss == 0 and self.average_gain == 0:
             lastNumber = None
             gainTotal = 0
             lossTotal = 0
             for price in data:
-                if(lastNumber == None):
+                if lastNumber == None:
                     lastNumber = price
                     continue
-            
-                if(lastNumber - price < 0):
+                # calculate the difference between every adjecent price
+                if lastNumber - price < 0:
                     gainTotal += abs(lastNumber - price)
                     lastNumber = price
                 else:
                     lossTotal += abs(lastNumber - price)
                     lastNumber = price
+            # calculate the average_gain and average_loss
             self.average_gain = gainTotal / 14
             self.average_loss = lossTotal / 14
         else:
+            # if we got here, we already have an average_gain and average_loss
+            # we need to re-calculate with smoothing
             lastPrices = data[-2:]
-            if(lastPrices[0] - lastPrices[1] < 0):
+            if lastPrices[0] - lastPrices[1] < 0:
                 self.average_gain = (self.average_gain * 13 + abs(lastPrices[0] - lastPrices[1])) / 14
             else:
                 self.average_loss = (self.average_loss * 13 + abs(lastPrices[0] - lastPrices[1])) / 14
 
 
+        # calculate relativeStrength and rsi, and round to 2 decimals
         relativeStrength = self.average_gain / self.average_loss
         self.rsi = round(100 - (100 / (1 + relativeStrength)), 2)
 
         return self.rsi
-
 
     def getRSI(self):
         return self.rsi
 
     def updateAmount(self):
         self.amount = api.getQTY(self.symbol)
-
 
 
 class SymbolStore:
@@ -69,7 +70,7 @@ class SymbolStore:
         """
         symbol = symbol.upper()
         for storedSymbol in self.symbols:
-            if(symbol == storedSymbol.symbol ):
+            if symbol == storedSymbol.symbol:
                 print('symbol already exists, this one is not added')
                 return storedSymbol
         newSymbol = Symbol(symbol)
@@ -84,7 +85,7 @@ class SymbolStore:
         """
         symbol = symbol.upper()
         for storedSymbol in self.symbols:
-            if(storedSymbol.symbol == symbol):
+            if storedSymbol.symbol == symbol:
                 self.symbols.remove(storedSymbol)
                 return symbol
         return False
@@ -96,7 +97,7 @@ class SymbolStore:
         """
         symbol = symbol.upper()
         for storedSymbol in self.symbols:
-            if(storedSymbol.symbol == symbol):
+            if storedSymbol.symbol == symbol:
                 return storedSymbol
         return False
 
@@ -114,8 +115,7 @@ class SymbolStore:
             symbol.updateRSI()
             print(f"updated RSI value for: {symbol}")
 
-
-def checkForBets(symbols):
+def checkForOpportunities(symbols):
     """
         check if there are any symbol for wich it makes sense to execute an order
 
@@ -128,20 +128,20 @@ def checkForBets(symbols):
     closingTimeIntervalOffset = datetime.datetime.strptime(api.closingTime(), "%Y-%m-%dT%H:%M:%S%z") - datetime.timedelta(minutes=interval[0] + 1 )
     closing = now > closingTimeIntervalOffset
 
-    if(closing):
+    if closing:
         print(f'[{str(now.time())[0:5]}] market is about to close, panic close now')
         api.panic()
 
     allSymbols = symbols.listAllSymbols()
-    if(api.isMarketOpen()):
+    if api.isMarketOpen():
         print(f"\n\nSymbol\t RSI \t Action", end='')
         print(f'\n================ {str(now.time())[0:5]} ================', end='')
         for symbol in allSymbols:
             symbol.updateRSI(interval[0]);
-            if(symbol.getRSI() > 70):
+            if symbol.getRSI() > 70:
                 print(f"\n{symbol.symbol}\t {symbol.getRSI()}\t Selling", end='')
                 placeOrder(symbol, "sell")
-            elif(symbol.getRSI() < 30):
+            elif symbol.getRSI() < 30:
                 print(f"\n{symbol.symbol}\t {symbol.getRSI()}\t Buying", end='')
                 placeOrder(symbol, "buy")
             else:
@@ -157,20 +157,9 @@ def placeOrder(symbol, action):
     # TODO: calculate  and execute stop order
     # TODO: calculate how much we should buy or sell based on avalable funds
     symbol.updateAmount()
-    if((int(symbol.amount) >= 1 and action == "buy") or (int(symbol.amount) <= -1 and action == "sell")):
+    if (int(symbol.amount) >= 1 and action == "buy") or (int(symbol.amount) <= -1 and action == "sell"):
         return
-    if(int(symbol.amount) == 0):
+    if int(symbol.amount) == 0:
         api.createOrder(symbol.symbol, 1, action)
     else:
         api.createOrder(symbol.symbol, 2, action)
-
-
-# def __init__(self, symbol): ==== Symbol class ====
-# def updateRSI(self):
-# def getRSI(self):
-#
-# def __init__(self):       ==== SymbolStore class ====
-# def addSymbol(self, symbol): def removeSymbol(self, symbol):
-# def getSymbol(self, symbol):
-# def listAllSymbols(self):
-# def updateAllSymbolRSI(self):
