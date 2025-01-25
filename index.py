@@ -2,6 +2,7 @@ import cli
 import utils
 import threading
 import time
+import datetime
 
 interval = [15]
 trading = threading.Event()
@@ -16,12 +17,19 @@ interface()
 # threading.Thread(target=interface).start()
 
 def loop():
-    # TODO: make the loop execute each second, and add an if check to see if there has been interval minutes passed since last excution of code
-    # INFO: this is to make it more responsive when the user changes stuff in the cli
+    run = True
+    lastExecution = datetime.datetime.now(datetime.timezone.utc)
+    # print("run", run)
     while True:
-        if trading.is_set():
+        if not trading.is_set():
+            run = True
+        if(not run):
+            run = datetime.datetime.now(datetime.timezone.utc) > lastExecution + datetime.timedelta(minutes=interval[0])
+        if trading.is_set() and run:
+            lastExecution = datetime.datetime.now(datetime.timezone.utc)
             utils.checkForBets(symbols)
-            time.sleep(interval[0] * 60)
+            run = False
+            time.sleep(1)
         else:
             time.sleep(1)
 
