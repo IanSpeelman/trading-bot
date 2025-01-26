@@ -13,6 +13,10 @@ class Symbol:
         return self.symbol
 
     def updateRSI(self, data):
+        """
+            updates the RSI value for this symbol
+            data is a list with the last prices sorted ASC
+        """
         # if average_gain and average_loss are 0, we have not yet calculated any rsi,
         # so we need to do a clean calculation
         if self.average_loss == 0 and self.average_gain == 0:
@@ -31,8 +35,8 @@ class Symbol:
                     lossTotal += abs(lastNumber - price)
                     lastNumber = price
             # calculate the average_gain and average_loss
-            self.average_gain = gainTotal / 14
-            self.average_loss = lossTotal / 14
+            self.average_gain = gainTotal / len(data)
+            self.average_loss = lossTotal / len(data)
         else:
             # if we got here, we already have an average_gain and average_loss
             # we need to re-calculate with smoothing
