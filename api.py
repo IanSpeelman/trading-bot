@@ -83,24 +83,29 @@ def getLatestPrice(symbol=""):
     data = json.loads(response.text)
     return data["bars"][symbol]["c"]
 
-def getPriceHistory(symbol, minutes):
+def getPriceHistory(listOfSymbols=[], minutes=15):
     """
         Get the last 14 price points with a interval minutes interval
     """
     # get date, calculate the starting point, and formatting it so the api can accept it
     now = datetime.datetime.now(datetime.timezone.utc)
-    prev = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=1)
+    prev = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=3)
     nowstr = now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
     prevstr = prev.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+ 
+    symbols = ""
+    for symbol in listOfSymbols:
+        symbols = symbols + "," + symbol
+
+    symbols = symbols[1:]
 
     url = f"{api_data_endpoint}/stocks/bars"
     payload = {
-        'symbols':symbol,
+        'symbols':symbols,
         'timeframe':f"{minutes}T",
         'start':prevstr,
         'end':nowstr,
         'limit':1000,
-        'adjustment':'raw',
         'feed':'iex',
         'sort':'asc'
     }
@@ -108,9 +113,14 @@ def getPriceHistory(symbol, minutes):
     # make the request and filter out the stuff we dont need
     response = requests.get(url,payload, headers=headers)
     data = json.loads(response.text)
-    result = []
-    for price in data["bars"][symbol][-14:]:
-        result.append(price["c"])
+    result = {}
+
+    for symbol in listOfSymbols:
+        for price in data["bars"][f"{symbol}"][-14:]:
+            if not result.get(symbol):
+                result[f"{symbol}"] = []
+            result[f"{symbol}"].append(price["c"])
+
     return result
 
 def isMarketOpen():
