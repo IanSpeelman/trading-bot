@@ -166,3 +166,9 @@ def closingTime():
     response = requests.get(url, headers=headers)
     time = json.loads(response.text)["next_close"]
     return time
+
+def openTime():
+    url = f"{api_endpoint}/clock"
+    response = requests.get(url, headers=headers)
+    time = json.loads(response.text)["next_open"]
+    return time
