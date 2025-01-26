@@ -113,7 +113,6 @@ class SymbolStore:
         """
         for symbol in self.symbols:
             symbol.updateRSI()
-            print(f"updated RSI value for: {symbol}")
 
 def checkForOpportunities(symbols):
     """

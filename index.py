@@ -18,7 +18,6 @@ interface()
 def loop():
     run = True
     lastExecution = datetime.datetime.now(datetime.timezone.utc)
-    # print("run", run)
     while True:
         if not trading.is_set():
             run = True
