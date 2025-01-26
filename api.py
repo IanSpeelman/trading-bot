@@ -12,7 +12,6 @@ headers = {
     'content-type': 'application/json'
 }
 
-
 def createOrder(symbol="", qty=1, action="buy", type="market", tif="ioc"):
     """
         =============================================================
@@ -26,9 +25,7 @@ def createOrder(symbol="", qty=1, action="buy", type="market", tif="ioc"):
 
         this function is reponsible for placing a new order
     """
-
     url = f"{api_endpoint}/orders"
-
     data = {
         "side": action,
         "type": type,
@@ -37,11 +34,7 @@ def createOrder(symbol="", qty=1, action="buy", type="market", tif="ioc"):
         "qty": str(qty)
     }
 
-
     response = requests.post(url, json=data, headers=headers)
-
-
-
     return response.text
 
 def getQTY(symbol):
@@ -61,7 +54,7 @@ def getQTY(symbol):
 def getAllOpenPositions():
     """
         retrieves all open positions
-    """    
+    """
     url = f"{api_endpoint}/positions"
 
     response = requests.get(url, headers=headers)
@@ -73,7 +66,7 @@ def getAllOpenOrders():
         eg: orders that are active, waiting for execution
     """
     url = f"{api_endpoint}/orders"
-    
+
     response = requests.get(url, headers=headers)
     return response.text
 
@@ -81,7 +74,6 @@ def getLatestPrice(symbol=""):
     """
         get the latest price point of a certain symbol
     """
-
     url = f"{api_data_endpoint}/stocks/bars/latest?symbols={symbol}"
 
     response = requests.get(url, headers=headers)
@@ -90,7 +82,7 @@ def getLatestPrice(symbol=""):
 
 def getPriceHistory(symbol, minutes):
     """
-        Get the last 14 price points with a 15 minutes interval
+        Get the last 14 price points with a interval minutes interval
     """
     # get date, calculate the starting point, and formatting it so the api can accept it
     now = datetime.datetime.now(datetime.timezone.utc)
@@ -98,8 +90,6 @@ def getPriceHistory(symbol, minutes):
     nowstr = now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
     prevstr = prev.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
-
-    # set the correct query parameters
     url = f"{api_data_endpoint}/stocks/bars"
     payload = {
         'symbols':symbol,
@@ -124,8 +114,9 @@ def isMarketOpen():
     """
         returns True if market is open, otherwise it returns False
     """
+    # TODO: needs to check for each individual symbol, as we are failing for crypto
     url = f"{api_endpoint}/clock"
-    
+
     response = requests.get(url, headers=headers)
     data = json.loads(response.text)
     return data["is_open"]
@@ -140,18 +131,18 @@ def panic():
     positions = json.loads(positions.text)
     url = "https://app.alpaca.markets"
 
-    if(len(orders) == 0 and len(positions) == 0):
+    if len(orders) == 0 and len(positions) == 0 :
         return True
 
     for order in orders:
         print(order["status"])
-        if(order["status"] != 200):
+        if order["status"] != 200 :
             webbrowser.open(url, new=0, autoraise=True)
             return False
 
     for position in positions:
         print(position["status"])
-        if(position["status"] != 200):
+        if position["status"] != 200 :
             webbrowser.open(url, new=0, autoraise=True)
             return False
 
@@ -162,16 +153,3 @@ def closingTime():
     response = requests.get(url, headers=headers)
     time = json.loads(response.text)["next_close"]
     return time
-
-
-# ====== dev functions ======
-def getHeaders():
-    print(headers)
-
-
-# def createOrder(symbol="", qty=1, action="buy", type="market", tif="ioc"):
-# def getAllOpenPositions():
-# def getAllOpenOrders():
-# def getLatestPrice(symbol=""):
-# def getPriceHistory(symbol, minutes):
-# def getHeaders():

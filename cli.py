@@ -3,7 +3,7 @@ import api
 from index import trading, interval
 
 def showOptions(msg="", clear=True):
-    if(clear):
+    if clear:
         os.system("clear")
 
     print(msg)
