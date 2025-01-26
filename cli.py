@@ -6,7 +6,7 @@ from index import trading, interval
 
 def showOptions(msg="", clear=True):
     if clear:
-        if sys.platform == 'linux' or sys.platform == 'darwin':
+        if sys.platform in ("linux", "dawin"):
             os.system("clear")
         else:
             os.system("cls")
