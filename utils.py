@@ -12,8 +12,7 @@ class Symbol:
     def __str__(self):
         return self.symbol
 
-    def updateRSI(self, interval=15):
-        data = api.getPriceHistory(self.symbol, interval)
+    def updateRSI(self, data):
         # if average_gain and average_loss are 0, we have not yet calculated any rsi,
         # so we need to do a clean calculation
         if self.average_loss == 0 and self.average_gain == 0:
@@ -111,8 +110,14 @@ class SymbolStore:
         """
             update the RSI values for all symbols
         """
+        from index import interval
+        symbols = []
         for symbol in self.symbols:
-            symbol.updateRSI()
+            symbols.append(symbol.symbol)
+
+        data = api.getPriceHistory(symbols, interval[0])
+        for symbol in self.symbols:
+            symbol.updateRSI(data[symbol.symbol])
 
 def checkForOpportunities(symbols):
     """
