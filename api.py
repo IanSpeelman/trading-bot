@@ -12,7 +12,7 @@ headers = {
     'content-type': 'application/json'
 }
 
-def createOrder(symbol="", qty=1, action="buy", type="market", tif="ioc"):
+def createOrder(symbol="", qty=1, action="buy", type="trailing_stop", tif="day", trailing_percent=2):
     """
         =============================================================
         creates a new order with the given requirements
@@ -26,12 +26,15 @@ def createOrder(symbol="", qty=1, action="buy", type="market", tif="ioc"):
         this function is reponsible for placing a new order
     """
     url = f"{api_endpoint}/orders"
+
+
     data = {
-        "side": action,
-        "type": type,
-        "time_in_force": tif,
-        "symbol": symbol,
-        "qty": str(qty)
+    "type": type,
+    "time_in_force": tif,
+    "symbol": symbol,
+    "qty": str(qty),
+    "side": action,
+    "trail_percent": str(trailing_percent)
     }
 
     response = requests.post(url, json=data, headers=headers)
