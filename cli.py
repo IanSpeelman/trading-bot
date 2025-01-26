@@ -1,10 +1,15 @@
 import os
+import sys
 import api
 from index import trading, interval
 
+
 def showOptions(msg="", clear=True):
     if clear:
-        os.system("clear")
+        if sys.platform == 'linux' or sys.platform == 'darwin':
+            os.system("clear")
+        else:
+            os.system("cls")
 
     print(msg)
     print('1) Start Trading')
