@@ -83,7 +83,7 @@ def getLatestPrice(symbol=""):
     data = json.loads(response.text)
     return data["bars"][symbol]["c"]
 
-def getPriceHistory(listOfSymbols, minutes):
+def getPriceHistory(listOfSymbols=[], minutes=15):
     """
         Get the last 14 price points with a interval minutes interval
     """
