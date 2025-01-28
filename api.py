@@ -116,10 +116,17 @@ def getPriceHistory(listOfSymbols=[], minutes=15):
     result = {}
 
     for symbol in listOfSymbols:
-        for price in data["bars"][f"{symbol}"][-14:]:
-            if not result.get(symbol):
-                result[f"{symbol}"] = []
-            result[f"{symbol}"].append(price["c"])
+        try:
+            for price in data["bars"][f"{symbol}"][-14:]:
+                print(price)
+                if not result.get(symbol):
+                    result[f"{symbol}"] = []
+                result[f"{symbol}"].append(price["c"])
+        except NameError:
+            print(f"{symbol} not found in data")
+        except:
+            print("something went wrong")
+
 
     return result
 

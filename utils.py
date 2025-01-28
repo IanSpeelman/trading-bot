@@ -121,6 +121,8 @@ class SymbolStore:
 
         data = api.getPriceHistory(symbols, interval[0])
         for symbol in self.symbols:
+            print(symbol)
+            print(data[symbol.symbol])
             symbol.updateRSI(data[symbol.symbol])
 
 def checkForOpportunities(symbols):
@@ -144,8 +146,8 @@ def checkForOpportunities(symbols):
     if api.isMarketOpen():
         print(f"\n\nSymbol\t RSI \t Action", end='')
         print(f'\n================ {str(now.time())[0:5]} ================', end='')
+        symbols.updateAllSymbolRSI()
         for symbol in allSymbols:
-            symbol.updateRSI(interval[0]);
             if symbol.getRSI() > 70:
                 print(f"\n{symbol.symbol}\t {symbol.getRSI()}\t Selling", end='')
                 placeOrder(symbol, "sell")
