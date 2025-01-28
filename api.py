@@ -29,6 +29,17 @@ def createOrder(symbol="", qty=1, action="buy", type="trailing_stop", tif="day",
 
 
     data = {
+    "type": "market",
+    "time_in_force": tif,
+    "symbol": symbol,
+    "qty": str(qty),
+    "side": action
+    }
+
+    response = requests.post(url, json=data, headers=headers)
+
+
+    data = {
     "type": type,
     "time_in_force": tif,
     "symbol": symbol,
