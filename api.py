@@ -38,6 +38,11 @@ def createOrder(symbol="", qty=1, action="buy", type="trailing_stop", tif="day",
 
     response = requests.post(url, json=data, headers=headers)
 
+    if(action == "buy"):
+        action = "sell"
+    else:
+        action = "buy"
+
 
     data = {
     "type": type,
