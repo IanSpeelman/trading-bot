@@ -154,8 +154,10 @@ def checkForOpportunities(symbols):
                 placeOrder(symbol, "buy")
             else:
                 print(f"\n{symbol.symbol}\t {symbol.getRSI()}\t No action", end='')
+        return True
     else:
         print("market is closed")
+        return False
 
 def placeOrder(symbol, action):
     """
