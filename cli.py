@@ -176,6 +176,8 @@ def custom():
     symbols.addSymbol('KHC')
     symbols.addSymbol('ALNY')
     symbols.addSymbol('ACGL')
+    symbols.addSymbol('AAPL')
+    symbols.addSymbol('TSLA')
 
     interval[0] = 15
     showOptions(clear=True)
