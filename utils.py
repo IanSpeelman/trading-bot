@@ -138,7 +138,10 @@ def checkForOpportunities(symbols):
 
     if closing:
         print(f'[{str(now.time())[0:5]}] market is about to close, panic close now')
-        api.panic()
+        if(api.panic()):
+            print("Panic success, all positions and orders are closed")
+        else:
+            print("Panic failed, check 'https://alpaca.markets/' for more information")
 
     allSymbols = symbols.listAllSymbols()
     if api.isMarketOpen():

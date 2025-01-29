@@ -72,8 +72,10 @@ def removeSymbol():
     showOptions(f"symbol '{symbol.upper()}' removed")
 
 def panic():
-    api.panic()
-    showOptions("Panic, all open positions are closed and all remaining orders are canceled")
+    if(api.panic()):
+        showOptions("Panic success, all positions and orders are closed")
+    else:
+        showOptions("Panic failed, check 'https://alpaca.markets/' for more information")
 
 def allSymbols():
     from index import symbols
