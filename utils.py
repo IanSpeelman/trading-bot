@@ -121,8 +121,6 @@ class SymbolStore:
 
         data = api.getPriceHistory(symbols, interval[0])
         for symbol in self.symbols:
-            print(symbol)
-            print(data[symbol.symbol])
             symbol.updateRSI(data[symbol.symbol])
 
 def checkForOpportunities(symbols):

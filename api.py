@@ -121,28 +121,41 @@ def getPriceHistory(listOfSymbols=[], minutes=15):
         'timeframe':f"{minutes}T",
         'start':prevstr,
         'end':nowstr,
-        'limit':1000,
+        'limit':10000,
         'feed':'iex',
         'sort':'asc'
     }
 
     # make the request and filter out the stuff we dont need
     response = requests.get(url,payload, headers=headers)
-    data = json.loads(response.text)
-    result = {}
+    tmp = json.loads(response.text)
+    data = tmp
 
+    while tmp["next_page_token"] != None:
+        payload["page_token"] = tmp["next_page_token"]
+        response = requests.get(url,payload, headers=headers)
+        tmp = json.loads(response.text)
+        symbolPrices = tmp["bars"]
+        for key in symbolPrices.keys():
+            if key not in data["bars"].keys():
+                data["bars"][key] = symbolPrices.get(key)
+            else:
+                data["bars"][key].append(symbolPrices.get(key))
+    result = {}
     for symbol in listOfSymbols:
         try:
-            for price in data["bars"][f"{symbol}"][-14:]:
-                print(price)
+            for price in data["bars"][f"{symbol}"][-14:]: # INFO: the [-14:] talked about below is here
                 if not result.get(symbol):
                     result[f"{symbol}"] = []
                 result[f"{symbol}"].append(price["c"])
-        except NameError:
-            print(f"{symbol} not found in data")
         except:
-            print("something went wrong")
+            # FIX: find out why sometimes symbols are not found, but when logging out their value, there is some information
+            # INFO: all found instances do not have enough data, but removing the [-14:] for testing purposes does not eliminate the exception
+            print(f"{symbol} not found in data")
 
+            from index import symbols
+            symbols.removeSymbol(symbol)
+            print(f"{symbol} removed from the watchlist")
 
     return result
 
@@ -171,13 +184,11 @@ def panic():
         return True
 
     for order in orders:
-        print(order["status"])
         if order["status"] != 200 :
             webbrowser.open(url, new=0, autoraise=True)
             return False
 
     for position in positions:
-        print(position["status"])
         if position["status"] != 200 :
             webbrowser.open(url, new=0, autoraise=True)
             return False
