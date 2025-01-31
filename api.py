@@ -140,18 +140,17 @@ def getPriceHistory(listOfSymbols=[], minutes=15):
             if key not in data["bars"].keys():
                 data["bars"][key] = symbolPrices.get(key)
             else:
-                data["bars"][key].append(symbolPrices.get(key))
+                for price in symbolPrices.get(key):
+                    data["bars"][key].append(price)
     result = {}
     for symbol in listOfSymbols:
         try:
-            for price in data["bars"][f"{symbol}"][-14:]: # INFO: the [-14:] talked about below is here
+            for price in data["bars"][f"{symbol}"][-14:]:
                 if not result.get(symbol):
                     result[f"{symbol}"] = []
                 result[f"{symbol}"].append(price["c"])
         except:
-            # FIX: find out why sometimes symbols are not found, but when logging out their value, there is some information
-            # INFO: all found instances do not have enough data, but removing the [-14:] for testing purposes does not eliminate the exception
-            print(f"{symbol} not found in data")
+            print(f"{symbol} caused an error")
 
             from index import symbols
             symbols.removeSymbol(symbol)
